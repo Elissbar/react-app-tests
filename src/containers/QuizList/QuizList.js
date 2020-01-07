@@ -1,18 +1,13 @@
 import React from 'react';
 import classes from './QuizList.module.css';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import Loader from '../../components/UI/Loader/Loader';
+import { connect } from 'react-redux';
+import { fetchQuizes } from '../../store/actions/quiz';
 
 class QuizList extends React.Component {
-
-  state = {
-    quizes: [],
-    loading: true
-  }
-
   renderQuizes() {
-    return this.state.quizes.map((item, index) => {
+    return this.props.quizes.map((item, index) => {
       return (
         <li key={item.id}>
 
@@ -25,25 +20,8 @@ class QuizList extends React.Component {
     })
   }
 
-  async componentDidMount() {
-    try {
-      const response = await axios.get('https://react-quiz-559fd.firebaseio.com/quizes.json');
-
-      let quizes = [];
-      Object.keys(response.data).forEach((key, index) => {
-        quizes.push({
-          id: key,
-          name: `Тест №${index + 1}`
-        })
-      })
-
-      this.setState({
-        quizes,
-        loading: false // После того как тесты загрузятся из БД прелодер == false
-      })
-    } catch (e) {
-      console.log(e)
-    }
+  componentDidMount() {
+    this.props.fetchQuizes()
   }
 
   render() {
@@ -54,11 +32,11 @@ class QuizList extends React.Component {
 
           {/*  Прелоадер будет работать пока state.loading == true */}
           {
-            this.state.loading
+            this.props.loading 
               ? <Loader />
               : <ul>
-                  {this.renderQuizes()}
-                </ul>
+                {this.renderQuizes()}
+              </ul>
           }
         </div>
       </div>
@@ -66,4 +44,17 @@ class QuizList extends React.Component {
   }
 }
 
-export default QuizList;
+function mapStateToProps(state) {
+  return {
+    quizes: state.quiz.quizes,
+    loading: state.quiz.loading
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    fetchQuizes: () => dispatch(fetchQuizes())
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(QuizList);
