@@ -32,7 +32,7 @@ class QuizList extends React.Component {
 
           {/*  Прелоадер будет работать пока state.loading == true */}
           {
-            this.props.loading 
+            this.props.loading || !this.props.quizes.length
               ? <Loader />
               : <ul>
                 {this.renderQuizes()}
